@@ -12,7 +12,7 @@ from bs4 import BeautifulSoup
 from pydantic import BaseModel, HttpUrl, ValidationError, parse_obj_as
 from rich import print
 from rich.prompt import Prompt
-from trafilatura.spider import focused_crawler
+# from trafilatura.spider import focused_crawler
 
 logger = logging.getLogger(__name__)
 

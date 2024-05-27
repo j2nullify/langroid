@@ -5,12 +5,20 @@ from enum import Enum
 from io import BytesIO
 from typing import Any, Generator, List, Tuple
 
-import fitz
-import pdfplumber
-import pypdf
+try:
+    import fitz
+    import pdfplumber
+    import pypdf
+except ImportError:
+    pass
+
 import requests
 from bs4 import BeautifulSoup
-from PIL import Image
+try:
+    from PIL import Image
+except ImportError:
+    pass
+
 
 from langroid.mytypes import DocMetaData, Document
 from langroid.parsing.parser import Parser, ParsingConfig
@@ -358,187 +366,187 @@ class DocumentParser(Parser):
         return docs
 
 
-class FitzPDFParser(DocumentParser):
-    """
-    Parser for processing PDFs using the `fitz` library.
-    """
+# class FitzPDFParser(DocumentParser):
+#     """
+#     Parser for processing PDFs using the `fitz` library.
+#     """
 
-    def iterate_pages(self) -> Generator[Tuple[int, fitz.Page], None, None]:
-        """
-        Yield each page in the PDF using `fitz`.
+#     def iterate_pages(self) -> Generator[Tuple[int, fitz.Page], None, None]:
+#         """
+#         Yield each page in the PDF using `fitz`.
 
-        Returns:
-            Generator[fitz.Page]: Generator yielding each page.
-        """
-        doc = fitz.open(stream=self.doc_bytes, filetype="pdf")
-        for i, page in enumerate(doc):
-            yield i, page
-        doc.close()
+#         Returns:
+#             Generator[fitz.Page]: Generator yielding each page.
+#         """
+#         doc = fitz.open(stream=self.doc_bytes, filetype="pdf")
+#         for i, page in enumerate(doc):
+#             yield i, page
+#         doc.close()
 
-    def extract_text_from_page(self, page: fitz.Page) -> str:
-        """
-        Extract text from a given `fitz` page.
+#     def extract_text_from_page(self, page: fitz.Page) -> str:
+#         """
+#         Extract text from a given `fitz` page.
 
-        Args:
-            page (fitz.Page): The `fitz` page object.
+#         Args:
+#             page (fitz.Page): The `fitz` page object.
 
-        Returns:
-            str: Extracted text from the page.
-        """
-        return self.fix_text(page.get_text())
-
-
-class PyPDFParser(DocumentParser):
-    """
-    Parser for processing PDFs using the `pypdf` library.
-    """
-
-    def iterate_pages(self) -> Generator[Tuple[int, pypdf.PageObject], None, None]:
-        """
-        Yield each page in the PDF using `pypdf`.
-
-        Returns:
-            Generator[pypdf.pdf.PageObject]: Generator yielding each page.
-        """
-        reader = pypdf.PdfReader(self.doc_bytes)
-        for i, page in enumerate(reader.pages):
-            yield i, page
-
-    def extract_text_from_page(self, page: pypdf.PageObject) -> str:
-        """
-        Extract text from a given `pypdf` page.
-
-        Args:
-            page (pypdf.pdf.PageObject): The `pypdf` page object.
-
-        Returns:
-            str: Extracted text from the page.
-        """
-        return self.fix_text(page.extract_text())
+#         Returns:
+#             str: Extracted text from the page.
+#         """
+#         return self.fix_text(page.get_text())
 
 
-class PDFPlumberParser(DocumentParser):
-    """
-    Parser for processing PDFs using the `pdfplumber` library.
-    """
+# class PyPDFParser(DocumentParser):
+#     """
+#     Parser for processing PDFs using the `pypdf` library.
+#     """
 
-    def iterate_pages(
-        self,
-    ) -> (Generator)[Tuple[int, pdfplumber.pdf.Page], None, None]:  # type: ignore
-        """
-        Yield each page in the PDF using `pdfplumber`.
+#     def iterate_pages(self) -> Generator[Tuple[int, pypdf.PageObject], None, None]:
+#         """
+#         Yield each page in the PDF using `pypdf`.
 
-        Returns:
-            Generator[pdfplumber.Page]: Generator yielding each page.
-        """
-        with pdfplumber.open(self.doc_bytes) as pdf:
-            for i, page in enumerate(pdf.pages):
-                yield i, page
+#         Returns:
+#             Generator[pypdf.pdf.PageObject]: Generator yielding each page.
+#         """
+#         reader = pypdf.PdfReader(self.doc_bytes)
+#         for i, page in enumerate(reader.pages):
+#             yield i, page
 
-    def extract_text_from_page(self, page: pdfplumber.pdf.Page) -> str:  # type: ignore
-        """
-        Extract text from a given `pdfplumber` page.
+#     def extract_text_from_page(self, page: pypdf.PageObject) -> str:
+#         """
+#         Extract text from a given `pypdf` page.
 
-        Args:
-            page (pdfplumber.Page): The `pdfplumber` page object.
+#         Args:
+#             page (pypdf.pdf.PageObject): The `pypdf` page object.
 
-        Returns:
-            str: Extracted text from the page.
-        """
-        return self.fix_text(page.extract_text())
+#         Returns:
+#             str: Extracted text from the page.
+#         """
+#         return self.fix_text(page.extract_text())
 
 
-class ImagePdfParser(DocumentParser):
-    """
-    Parser for processing PDFs that are images, i.e. not "true" PDFs.
-    """
+# class PDFPlumberParser(DocumentParser):
+#     """
+#     Parser for processing PDFs using the `pdfplumber` library.
+#     """
 
-    def iterate_pages(
-        self,
-    ) -> Generator[Tuple[int, "Image"], None, None]:  # type: ignore
-        from pdf2image import convert_from_bytes
+#     def iterate_pages(
+#         self,
+#     ) -> (Generator)[Tuple[int, pdfplumber.pdf.Page], None, None]:  # type: ignore
+#         """
+#         Yield each page in the PDF using `pdfplumber`.
 
-        images = convert_from_bytes(self.doc_bytes.getvalue())
-        for i, image in enumerate(images):
-            yield i, image
+#         Returns:
+#             Generator[pdfplumber.Page]: Generator yielding each page.
+#         """
+#         with pdfplumber.open(self.doc_bytes) as pdf:
+#             for i, page in enumerate(pdf.pages):
+#                 yield i, page
 
-    def extract_text_from_page(self, page: "Image") -> str:  # type: ignore
-        """
-        Extract text from a given `pdf2image` page.
+#     def extract_text_from_page(self, page: pdfplumber.pdf.Page) -> str:  # type: ignore
+#         """
+#         Extract text from a given `pdfplumber` page.
 
-        Args:
-            page (Image): The PIL Image object.
+#         Args:
+#             page (pdfplumber.Page): The `pdfplumber` page object.
 
-        Returns:
-            str: Extracted text from the image.
-        """
-        import pytesseract
-
-        text = pytesseract.image_to_string(page)
-        return self.fix_text(text)
+#         Returns:
+#             str: Extracted text from the page.
+#         """
+#         return self.fix_text(page.extract_text())
 
 
-class UnstructuredPDFParser(DocumentParser):
-    """
-    Parser for processing PDF files using the `unstructured` library.
-    """
+# class ImagePdfParser(DocumentParser):
+#     """
+#     Parser for processing PDFs that are images, i.e. not "true" PDFs.
+#     """
 
-    def iterate_pages(self) -> Generator[Tuple[int, Any], None, None]:  # type: ignore
-        try:
-            from unstructured.partition.pdf import partition_pdf
-        except ImportError:
-            raise ImportError(
-                """
-                The `unstructured` library is not installed by default with langroid.
-                To include this library, please install langroid with the
-                `unstructured` extra by running `pip install "langroid[unstructured]"`
-                or equivalent.
-                """
-            )
+#     def iterate_pages(
+#         self,
+#     ) -> Generator[Tuple[int, "Image"], None, None]:  # type: ignore
+#         from pdf2image import convert_from_bytes
 
-        # from unstructured.chunking.title import chunk_by_title
+#         images = convert_from_bytes(self.doc_bytes.getvalue())
+#         for i, image in enumerate(images):
+#             yield i, image
 
-        try:
-            elements = partition_pdf(file=self.doc_bytes, include_page_breaks=True)
-        except Exception as e:
-            raise Exception(
-                f"""
-                Error parsing PDF: {e}
-                The `unstructured` library failed to parse the pdf.
-                Please try a different library by setting the `library` field
-                in the `pdf` section of the `parsing` field in the config file.
-                Supported libraries are:
-                fitz, pypdf, pdfplumber, unstructured
-                """
-            )
+#     def extract_text_from_page(self, page: "Image") -> str:  # type: ignore
+#         """
+#         Extract text from a given `pdf2image` page.
 
-        # elements = chunk_by_title(elements)
-        page_number = 1
-        page_elements = []  # type: ignore
-        for el in elements:
-            if el.category == "PageBreak":
-                if page_elements:  # Avoid yielding empty pages at the start
-                    yield page_number, page_elements
-                page_number += 1
-                page_elements = []
-            else:
-                page_elements.append(el)
-        # Yield the last page if it's not empty
-        if page_elements:
-            yield page_number, page_elements
+#         Args:
+#             page (Image): The PIL Image object.
 
-    def extract_text_from_page(self, page: Any) -> str:
-        """
-        Extract text from a given `unstructured` element.
+#         Returns:
+#             str: Extracted text from the image.
+#         """
+#         import pytesseract
 
-        Args:
-            page (unstructured element): The `unstructured` element object.
+#         text = pytesseract.image_to_string(page)
+#         return self.fix_text(text)
 
-        Returns:
-            str: Extracted text from the element.
-        """
-        text = " ".join(el.text for el in page)
-        return self.fix_text(text)
+
+# class UnstructuredPDFParser(DocumentParser):
+#     """
+#     Parser for processing PDF files using the `unstructured` library.
+#     """
+
+#     def iterate_pages(self) -> Generator[Tuple[int, Any], None, None]:  # type: ignore
+#         try:
+#             from unstructured.partition.pdf import partition_pdf
+#         except ImportError:
+#             raise ImportError(
+#                 """
+#                 The `unstructured` library is not installed by default with langroid.
+#                 To include this library, please install langroid with the
+#                 `unstructured` extra by running `pip install "langroid[unstructured]"`
+#                 or equivalent.
+#                 """
+#             )
+
+#         # from unstructured.chunking.title import chunk_by_title
+
+#         try:
+#             elements = partition_pdf(file=self.doc_bytes, include_page_breaks=True)
+#         except Exception as e:
+#             raise Exception(
+#                 f"""
+#                 Error parsing PDF: {e}
+#                 The `unstructured` library failed to parse the pdf.
+#                 Please try a different library by setting the `library` field
+#                 in the `pdf` section of the `parsing` field in the config file.
+#                 Supported libraries are:
+#                 fitz, pypdf, pdfplumber, unstructured
+#                 """
+#             )
+
+#         # elements = chunk_by_title(elements)
+#         page_number = 1
+#         page_elements = []  # type: ignore
+#         for el in elements:
+#             if el.category == "PageBreak":
+#                 if page_elements:  # Avoid yielding empty pages at the start
+#                     yield page_number, page_elements
+#                 page_number += 1
+#                 page_elements = []
+#             else:
+#                 page_elements.append(el)
+#         # Yield the last page if it's not empty
+#         if page_elements:
+#             yield page_number, page_elements
+
+#     def extract_text_from_page(self, page: Any) -> str:
+#         """
+#         Extract text from a given `unstructured` element.
+
+#         Args:
+#             page (unstructured element): The `unstructured` element object.
+
+#         Returns:
+#             str: Extracted text from the element.
+#         """
+#         text = " ".join(el.text for el in page)
+#         return self.fix_text(text)
 
 
 class UnstructuredDocxParser(DocumentParser):

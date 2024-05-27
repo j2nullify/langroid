@@ -12,9 +12,12 @@ from typing import Dict, List
 import requests
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
-from duckduckgo_search import DDGS
-from googleapiclient.discovery import Resource, build
-from requests.models import Response
+try:
+    from duckduckgo_search import DDGS
+    from googleapiclient.discovery import Resource, build
+    from requests.models import Response
+except ImportError:
+    pass
 
 
 class WebSearchResult:

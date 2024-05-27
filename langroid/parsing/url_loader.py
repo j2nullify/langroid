@@ -4,15 +4,18 @@ from tempfile import NamedTemporaryFile
 from typing import List, no_type_check
 
 import requests
-import trafilatura
-from trafilatura.downloads import (
-    add_to_compressed_dict,
-    buffered_downloads,
-    load_download_buffer,
-)
+try:
+    import trafilatura
+    from trafilatura.downloads import (
+        add_to_compressed_dict,
+        buffered_downloads,
+        load_download_buffer,
+    )
+except ImportError:
+    pass
 
 from langroid.mytypes import DocMetaData, Document
-from langroid.parsing.document_parser import DocumentParser, ImagePdfParser
+from langroid.parsing.document_parser import DocumentParser
 from langroid.parsing.parser import Parser, ParsingConfig
 
 logging.getLogger("trafilatura").setLevel(logging.ERROR)

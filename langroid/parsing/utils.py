@@ -5,8 +5,13 @@ import re
 from functools import cache
 from itertools import islice
 from typing import Iterable, List, Sequence, TypeVar
+import warnings
 
-import nltk
+try:
+    import nltk
+except ImportError:
+    warnings.warn("No NLTK in Langroid-slim")
+    pass
 from faker import Faker
 
 from langroid.mytypes import Document

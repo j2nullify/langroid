@@ -1,11 +1,14 @@
 import logging
 from typing import Any, Dict, Generator, List, Optional, Sequence, Tuple, Type
 
-import lancedb
-import pandas as pd
-from dotenv import load_dotenv
-from lancedb.pydantic import LanceModel, Vector
-from lancedb.query import LanceVectorQueryBuilder
+try:
+    import lancedb
+    import pandas as pd
+    from dotenv import load_dotenv
+    from lancedb.pydantic import LanceModel, Vector
+    from lancedb.query import LanceVectorQueryBuilder
+except ImportError:
+    pass
 from pydantic import BaseModel, ValidationError, create_model
 
 from langroid.embedding_models.base import (

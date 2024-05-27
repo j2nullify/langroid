@@ -4,9 +4,12 @@ import os
 from datetime import timedelta
 from typing import Any, Dict, List
 
-import momento
+try:
+    import momento
+    from momento.responses import CacheGet
+except ImportError:
+    pass
 from dotenv import load_dotenv
-from momento.responses import CacheGet
 from pydantic import BaseModel
 
 from langroid.cachedb.base import CacheDB

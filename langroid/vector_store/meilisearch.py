@@ -12,10 +12,13 @@ import logging
 import os
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
-import meilisearch_python_sdk as meilisearch
-from dotenv import load_dotenv
-from meilisearch_python_sdk.index import AsyncIndex
-from meilisearch_python_sdk.models.documents import DocumentsInfo
+try:
+    import meilisearch_python_sdk as meilisearch
+    from dotenv import load_dotenv
+    from meilisearch_python_sdk.index import AsyncIndex
+    from meilisearch_python_sdk.models.documents import DocumentsInfo
+except ImportError:
+    pass
 
 from langroid.mytypes import DocMetaData, Document
 from langroid.utils.configuration import settings
@@ -95,12 +98,12 @@ class MeiliSearch(VectorStore):
         """
         return self.list_collections()
 
-    async def _async_get_indexes(self) -> List[AsyncIndex]:
+    async def _async_get_indexes(self) -> List[Any]:
         async with self.client() as client:
             indexes = await client.get_indexes(limit=10_000)
         return [] if indexes is None else indexes
 
-    async def _async_get_index(self, index_uid: str) -> AsyncIndex:
+    async def _async_get_index(self, index_uid: str) -> Any:
         async with self.client() as client:
             index = await client.get_index(index_uid)
         return index
@@ -116,7 +119,7 @@ class MeiliSearch(VectorStore):
         else:
             return [ind.uid for ind in indexes]
 
-    async def _async_create_index(self, collection_name: str) -> AsyncIndex:
+    async def _async_create_index(self, collection_name: str) -> Any:
         async with self.client() as client:
             index = await client.create_index(
                 uid=collection_name,

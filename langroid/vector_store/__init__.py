@@ -1,13 +1,13 @@
 from . import base
 
 from . import qdrantdb
-from . import meilisearch
-from . import lancedb
+# from . import meilisearch
+# from . import lancedb
 
 from .base import VectorStoreConfig, VectorStore
 from .qdrantdb import QdrantDBConfig, QdrantDB
-from .meilisearch import MeiliSearch, MeiliSearchConfig
-from .lancedb import LanceDB, LanceDBConfig
+# from .meilisearch import MeiliSearch, MeiliSearchConfig
+# from .lancedb import LanceDB, LanceDBConfig
 
 has_chromadb = False
 try:
