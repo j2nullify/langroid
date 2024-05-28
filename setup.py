@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="langroid-slim",
-    version="0.1.253",
+    version="0.1.254",
     description="Harness LLMs with Multi-Agent Programming",
     author="Prasad Chalasani",
     author_email="pchalasani@gmail.com",
@@ -40,7 +40,10 @@ setup(
         "rank-bm25>=0.2.2",
         "groq>=0.5.0",
         "jinja2>=3.1.2",
-        "docstring-parser>=0.15"
+        "docstring-parser>=0.15",
+        "faker>=18.9.0",
+        "thefuzz==0.22.1",
+        "aiohttp>=3.9.1"
     ],
     python_requires=">=3.10, <3.12",
     extras_require={
